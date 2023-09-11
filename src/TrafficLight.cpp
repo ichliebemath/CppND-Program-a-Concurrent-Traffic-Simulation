@@ -44,6 +44,7 @@ void TrafficLight::waitForGreen()
     // runs and repeatedly calls the receive function on the message queue. 
     // Once it receives TrafficLightPhase::green, the method returns.
     while (true){
+        _currentPhase= _queue.receive();
         if(_currentPhase == TrafficLightPhase::green){
             return;
         }
@@ -74,7 +75,6 @@ void TrafficLight::cycleThroughPhases()
     std::random_device rd;
     std::mt19937 eng(rd());
     std::uniform_int_distribution<> distr(4000, 6000);
-    
     while (true) {
         // Calculate a new random cycle length
         double cycleLength = distr(eng);
