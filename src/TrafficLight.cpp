@@ -48,7 +48,6 @@ void TrafficLight::waitForGreen()
         if(_currentPhase == TrafficLightPhase::green){
             return;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     return;   
 }
