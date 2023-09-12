@@ -72,38 +72,26 @@ void TrafficLight::cycleThroughPhases()
     // and toggles the current phase of the traffic light between red and green and sends an update method 
     // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
     // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
-    std::default_random_engine eng;
-    std::uniform_int_distribution<int> range(4000, 6000);
-    int duration = range(eng);
-  
-  	std::chrono::high_resolution_clock::time_point timeStart = std::chrono::high_resolution_clock::now();
-  
-  	while (true) {
-    	std::this_thread::sleep_for(std::chrono::milliseconds(1));
-      
-      	std::chrono::high_resolution_clock::time_point timeNow = std::chrono::high_resolution_clock::now();
-      
-      	// sleep for the random duration
-      	auto timePassed = std::chrono::duration_cast<std::chrono::milliseconds>(timeNow - timeStart).count();
-      
-      	// check if enough time has passed
-      	if (timePassed >= duration)
-        {
-          	// switch phase
-            if (_currentPhase == TrafficLightPhase::red)
-            {
+    double cycleLength;
+    std::random_device rd;
+    std::mt19937 eng(rd());
+    std::uniform_int_distribution<> distr(4, 6);
+    cycleLength = distr(eng);
+    auto currentTime = std::chrono::system_clock::now();
+    while(true){
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        auto timeSinceLastUpdate = std::chrono::system_clock::now();
+        std::chrono::duration<double> elapsedSeconds = timeSinceLastUpdate - currentTime;
+        if(elapsedSeconds.count() >= cycleLength){
+            if(_currentPhase == TrafficLightPhase::red){
                 _currentPhase = TrafficLightPhase::green;
             }
-            else {
+            else{
                 _currentPhase = TrafficLightPhase::red;
             }
-          
-          	timeStart = std::chrono::high_resolution_clock::now();
-          	timeNow = std::chrono::high_resolution_clock::now();
-          	duration = range(eng);
-
             _queue.send(std::move(_currentPhase));
+            currentTime = std::chrono::system_clock::now();
+            cycleLength = distr(eng);
         }
     }
 }
-
